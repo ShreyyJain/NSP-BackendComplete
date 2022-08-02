@@ -1,0 +1,5 @@
+package com.lti.springboot.controller;
+
+public class ScholarshipController {
+
+}

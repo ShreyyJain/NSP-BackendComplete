@@ -1,0 +1,129 @@
+package com.lti.springboot.controller;
+
+import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+
+import com.lti.springboot.pojo.InstituteDetail;
+import com.lti.springboot.pojo.NodalOfficer;
+import com.lti.springboot.pojo.NodalOfficerLogin;
+import com.lti.springboot.pojo.ScholarshipApplication;
+import com.lti.springboot.repository.InstituteDetailsRepository;
+import com.lti.springboot.repository.NodalOfficerRepository;
+import com.lti.springboot.repository.ScholarshipApplicationRepository;
+import com.lti.springboot.service.NodalOfficerService;
+
+import java.util.*;
+
+@RestController
+@CrossOrigin(origins = "http://localhost:4200")
+public class NodalOfficerController {
+
+	@Autowired
+	private NodalOfficerService nodal;
+	
+	
+	@Autowired
+	private InstituteDetailsRepository institute;
+	
+	@PostMapping("/nodalofficer")
+	public NodalOfficer createNodalOfficer(@Valid @RequestBody NodalOfficer nodal1) {
+		return nodal.addNodal(nodal1);
+	}
+	
+	@Autowired
+	private NodalOfficerRepository nod;
+	
+	@GetMapping("/nodalofficerdetails")
+	public List<NodalOfficer> nodalDetails(){
+		List<NodalOfficer> ls = nod.findAll();
+		return ls;
+	}
+	
+	
+	@PostMapping("/nodallogin")
+	public boolean nodalLoginCheck(@Valid @RequestBody NodalOfficerLogin n) {
+		String username = n.getUsername();
+		String password = n.getPassword();
+		List<NodalOfficer> ls = nod.findAll();
+		for(NodalOfficer a : ls) {
+			if((username.equals(a.getUsername())) && (password.equals(a.getPassword()))){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	@GetMapping("/institutesinnodal")
+	public List<InstituteDetail> getAllInstitutes(){
+		return institute.findAll();
+	}
+	
+	@PutMapping("/institutionsapproval/{instiCode}")
+	public void updateStatus(@PathVariable(value="instiCode") String instiCode) {
+		Optional<InstituteDetail> i = institute.findByInstiCode(instiCode);
+		InstituteDetail application = i.get(); 
+		application.setApplication_status("approved by nodal officer");
+		institute.save(application); 
+	}
+	
+	@DeleteMapping("/institutesnodal/{instiCode}")
+	public void rejectbynodal(@PathVariable(value="instiCode") String instiCode) {
+		Optional<InstituteDetail> entity = institute.findByInstiCode(instiCode);
+		InstituteDetail i = entity.get();
+		i.setApplication_status("rejected by nodal officer");
+		institute.save(i);
+		//return "rejected";
+	}
+	@GetMapping("/nodalhome/{username}")
+	public NodalOfficer getDetails(@PathVariable String username) {
+		NodalOfficer nodal = nod.findByUsername(username);
+				return nodal;
+	}
+	
+	
+	
+	@Autowired
+	private ScholarshipApplicationRepository scholarApp;
+	
+	
+	@PutMapping("/applications/{aadhar}")
+	public ResponseEntity<ScholarshipApplication> updateStatus(@PathVariable(value="aadhar") String aId,
+			@Validated @RequestBody ScholarshipApplication application) 
+	{
+		ScholarshipApplication application=scholarApp.findByAadhar(aId);
+				
+						
+
+
+		application.setStatus(true);
+
+		final ScholarshipApplication updatedStatus=scholarApp.save(application);
+
+		return ResponseEntity.ok(updatedStatus);
+	}
+		
+	
+	@GetMapping("/studentsinnodal")
+	public List<ScholarshipApplication> getAllStudents(){
+		return scholarApp.findAll();
+	}
+	
+	@DeleteMapping("/deletestudent/{aadhar}")
+	public String deleteStudent(@PathVariable String aadhar)
+	{
+		scholarApp.deleteByAadhar(aadhar);
+		return "Student is deleted successfully";
+	}
+}

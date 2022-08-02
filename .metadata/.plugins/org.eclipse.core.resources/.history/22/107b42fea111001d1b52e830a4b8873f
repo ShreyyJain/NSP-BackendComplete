@@ -1,0 +1,9 @@
+package com.lti.springboot.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.lti.springboot.pojo.*;
+
+public interface NodalOfficerRepository extends JpaRepository<NodalOfficer , Long> {
+
+	NodalOfficer findByUsername(String username);
+}

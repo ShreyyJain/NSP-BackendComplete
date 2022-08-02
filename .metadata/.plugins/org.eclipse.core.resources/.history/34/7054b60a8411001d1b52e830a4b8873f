@@ -1,0 +1,9 @@
+package com.lti.springboot.repository;
+
+public interface ScholarshipApplicationRepository extends JpaRep {
+
+	
+	List<ScholarshipApplication> findByStatus(Boolean status);
+	
+	
+}

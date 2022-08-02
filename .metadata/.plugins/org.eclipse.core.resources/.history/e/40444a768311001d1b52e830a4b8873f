@@ -1,0 +1,5 @@
+package com.lti.springboot.pojo;
+
+public class ScholarshipApplication {
+
+}
